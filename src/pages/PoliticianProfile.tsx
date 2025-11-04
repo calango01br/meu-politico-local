@@ -1,18 +1,28 @@
 import { useParams } from "react-router-dom";
-import { ArrowLeft, Heart, Share2, TrendingUp, TrendingDown, MinusCircle } from "lucide-react";
+import { ArrowLeft, Heart, Share2, TrendingUp, TrendingDown, MinusCircle, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { fetchDeputyDetails } from "@/services/congressApi";
 
 const PoliticianProfile = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  // Mock data - would come from API
-  const politician = {
+  const { data: politician, isLoading, error } = useQuery({
+    queryKey: ["politician", id],
+    queryFn: () => fetchDeputyDetails(Number(id)),
+    enabled: !!id,
+    staleTime: 1000 * 60 * 10, // 10 minutes
+  });
+
+  const mockPolitician = {
     name: "Ana Silva",
     party: "PT",
     state: "SP",
@@ -50,6 +60,51 @@ const PoliticianProfile = () => {
     return { label: "Atenção", color: "text-destructive" };
   };
 
+  if (isLoading) {
+    return (
+      <div className="container max-w-2xl mx-auto px-4 py-6">
+        <div className="flex items-center justify-between mb-6">
+          <Button variant="ghost" size="icon" onClick={() => navigate("/politicians")} className="rounded-full">
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+        </div>
+        <Card className="mb-6">
+          <CardContent className="pt-6">
+            <div className="flex items-start gap-4 mb-6">
+              <Skeleton className="h-20 w-20 rounded-full" />
+              <div className="flex-1 space-y-2">
+                <Skeleton className="h-6 w-48" />
+                <Skeleton className="h-4 w-32" />
+                <div className="flex gap-2">
+                  <Skeleton className="h-6 w-16" />
+                  <Skeleton className="h-6 w-16" />
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (error || !politician) {
+    return (
+      <div className="container max-w-2xl mx-auto px-4 py-6">
+        <div className="flex items-center justify-between mb-6">
+          <Button variant="ghost" size="icon" onClick={() => navigate("/politicians")} className="rounded-full">
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+        </div>
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            Erro ao carregar dados do parlamentar. Tente novamente mais tarde.
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
+
   return (
     <div className="container max-w-2xl mx-auto px-4 py-6 animate-fade-in">
       {/* Header */}
@@ -77,6 +132,7 @@ const PoliticianProfile = () => {
         <CardContent className="pt-6">
           <div className="flex items-start gap-4 mb-6">
             <Avatar className="h-20 w-20">
+              {politician.photo && <AvatarImage src={politician.photo} alt={politician.name} />}
               <AvatarFallback className="bg-gradient-primary text-primary-foreground font-bold text-2xl">
                 {politician.initials}
               </AvatarFallback>
@@ -158,14 +214,20 @@ const PoliticianProfile = () => {
           <CardTitle>Últimas Ações</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-3">
-            {politician.recentActions.map((action) => (
-              <div key={action.id} className="flex items-start gap-3 pb-3 border-b last:border-0">
-                <action.icon className={`h-5 w-5 mt-0.5 ${getActionColor(action.type)}`} />
-                <p className="text-sm text-foreground flex-1">{action.title}</p>
-              </div>
-            ))}
-          </div>
+          {politician.recentActions && politician.recentActions.length > 0 ? (
+            <div className="space-y-3">
+              {politician.recentActions.map((action) => (
+                <div key={action.id} className="flex items-start gap-3 pb-3 border-b last:border-0">
+                  <TrendingUp className={`h-5 w-5 mt-0.5 ${getActionColor(action.type)}`} />
+                  <p className="text-sm text-foreground flex-1">{action.title}</p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground text-center py-4">
+              Dados de votações em breve
+            </p>
+          )}
         </CardContent>
       </Card>
     </div>

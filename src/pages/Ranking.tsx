@@ -1,61 +1,38 @@
 import { useState } from "react";
-import { Trophy, TrendingUp, Award, Star } from "lucide-react";
+import { Trophy, TrendingUp, Award, Star, AlertCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-
-const mockRankings = [
-  {
-    position: 1,
-    name: "Maria Santos",
-    party: "PSOL",
-    state: "RJ",
-    score: 95,
-    initials: "MS",
-    change: "up",
-  },
-  {
-    position: 2,
-    name: "Carlos Mendes",
-    party: "PSDB",
-    state: "MG",
-    score: 90,
-    initials: "CM",
-    change: "same",
-  },
-  {
-    position: 3,
-    name: "Ana Silva",
-    party: "PT",
-    state: "SP",
-    score: 87,
-    initials: "AS",
-    change: "down",
-  },
-  {
-    position: 4,
-    name: "Roberto Costa",
-    party: "PDT",
-    state: "BA",
-    score: 83,
-    initials: "RC",
-    change: "up",
-  },
-  {
-    position: 5,
-    name: "Juliana Lima",
-    party: "PSDB",
-    state: "PR",
-    score: 81,
-    initials: "JL",
-    change: "up",
-  },
-];
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useQuery } from "@tanstack/react-query";
+import { fetchAllPoliticians } from "@/services/congressApi";
 
 const Ranking = () => {
   const [filter, setFilter] = useState<string>("Nacional");
   const filters = ["Nacional", "SP", "RJ", "MG", "RS", "BA"];
+
+  const { data: politicians = [], isLoading, error } = useQuery({
+    queryKey: ["politicians"],
+    queryFn: fetchAllPoliticians,
+    staleTime: 1000 * 60 * 30, // 30 minutes
+  });
+
+  // Filter and rank politicians
+  const rankedPoliticians = politicians
+    .filter((pol) => filter === "Nacional" || pol.state === filter)
+    .slice(0, 10)
+    .map((pol, index) => ({
+      position: index + 1,
+      name: pol.name,
+      party: pol.party,
+      state: pol.state,
+      score: Math.floor(Math.random() * 30) + 70, // Mock score for now
+      initials: pol.initials,
+      photo: pol.photo,
+      change: index % 3 === 0 ? "up" : index % 3 === 1 ? "same" : "down",
+    }));
 
   const getPositionBadge = (position: number) => {
     if (position === 1) return <Trophy className="h-6 w-6 text-amber-500" />;
@@ -114,9 +91,44 @@ const Ranking = () => {
         </h2>
       </div>
 
+      {/* Error State */}
+      {error && (
+        <Alert variant="destructive" className="mb-4">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            Erro ao carregar dados. Tente novamente mais tarde.
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {/* Loading State */}
+      {isLoading && (
+        <div className="space-y-3">
+          {[...Array(5)].map((_, i) => (
+            <Card key={i} className="shadow-soft">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-4">
+                  <Skeleton className="h-10 w-10" />
+                  <Skeleton className="h-12 w-12 rounded-full" />
+                  <div className="flex-1 space-y-2">
+                    <Skeleton className="h-4 w-32" />
+                    <div className="flex gap-2">
+                      <Skeleton className="h-5 w-12" />
+                      <Skeleton className="h-5 w-12" />
+                    </div>
+                  </div>
+                  <Skeleton className="h-8 w-12" />
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+
       {/* Rankings List */}
-      <div className="space-y-3">
-        {mockRankings.map((politician) => (
+      {!isLoading && !error && (
+        <div className="space-y-3">
+          {rankedPoliticians.map((politician) => (
           <Card
             key={politician.position}
             className={`shadow-soft hover:shadow-elevated transition-all duration-200 ${
@@ -132,6 +144,7 @@ const Ranking = () => {
 
                 {/* Avatar */}
                 <Avatar className="h-12 w-12">
+                  {politician.photo && <AvatarImage src={politician.photo} alt={politician.name} />}
                   <AvatarFallback className="bg-gradient-primary text-primary-foreground font-semibold">
                     {politician.initials}
                   </AvatarFallback>
@@ -161,8 +174,9 @@ const Ranking = () => {
               </div>
             </CardContent>
           </Card>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
       {/* Bottom Info */}
       <div className="mt-6 p-4 bg-muted/50 rounded-lg">

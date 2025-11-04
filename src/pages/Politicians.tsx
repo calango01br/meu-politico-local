@@ -1,66 +1,30 @@
 import { useState } from "react";
-import { Search, ChevronRight } from "lucide-react";
+import { Search, ChevronRight, AlertCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useNavigate } from "react-router-dom";
-
-const mockPoliticians = [
-  {
-    id: 1,
-    name: "Ana Silva",
-    party: "PT",
-    state: "SP",
-    role: "Deputada Federal",
-    performance: { ethics: 85, presence: 92, projects: 78 },
-    initials: "AS",
-  },
-  {
-    id: 2,
-    name: "Carlos Mendes",
-    party: "PSDB",
-    state: "MG",
-    role: "Senador",
-    performance: { ethics: 90, presence: 88, projects: 82 },
-    initials: "CM",
-  },
-  {
-    id: 3,
-    name: "Maria Santos",
-    party: "PSOL",
-    state: "RJ",
-    role: "Deputada Federal",
-    performance: { ethics: 95, presence: 94, projects: 89 },
-    initials: "MS",
-  },
-  {
-    id: 4,
-    name: "João Pereira",
-    party: "PL",
-    state: "RS",
-    role: "Deputado Federal",
-    performance: { ethics: 72, presence: 85, projects: 70 },
-    initials: "JP",
-  },
-];
+import { useQuery } from "@tanstack/react-query";
+import { fetchAllPoliticians } from "@/services/congressApi";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const Politicians = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
 
-  const filteredPoliticians = mockPoliticians.filter((politician) =>
+  const { data: politicians = [], isLoading, error } = useQuery({
+    queryKey: ["politicians"],
+    queryFn: fetchAllPoliticians,
+    staleTime: 1000 * 60 * 30, // 30 minutes
+  });
+
+  const filteredPoliticians = politicians.filter((politician) =>
     politician.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     politician.party.toLowerCase().includes(searchTerm.toLowerCase()) ||
     politician.state.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
-  const getPerformanceColor = (score: number) => {
-    if (score >= 85) return "text-success";
-    if (score >= 70) return "text-accent";
-    return "text-destructive";
-  };
 
   return (
     <div className="container max-w-2xl mx-auto px-4 py-6 animate-fade-in">
@@ -83,9 +47,44 @@ const Politicians = () => {
         </div>
       </header>
 
+      {/* Error State */}
+      {error && (
+        <Alert variant="destructive" className="mb-4">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            Erro ao carregar dados. Tente novamente mais tarde.
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {/* Loading State */}
+      {isLoading && (
+        <div className="space-y-3">
+          {[...Array(5)].map((_, i) => (
+            <Card key={i} className="shadow-soft">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-4">
+                  <Skeleton className="h-14 w-14 rounded-full" />
+                  <div className="flex-1 space-y-2">
+                    <Skeleton className="h-4 w-32" />
+                    <Skeleton className="h-3 w-24" />
+                    <div className="flex gap-2">
+                      <Skeleton className="h-5 w-12" />
+                      <Skeleton className="h-5 w-12" />
+                    </div>
+                  </div>
+                  <Skeleton className="h-5 w-5" />
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+
       {/* Politicians List */}
-      <div className="space-y-3">
-        {filteredPoliticians.map((politician) => (
+      {!isLoading && !error && (
+        <div className="space-y-3">
+          {filteredPoliticians.map((politician) => (
           <Card
             key={politician.id}
             className="shadow-soft hover:shadow-elevated transition-all duration-200 cursor-pointer"
@@ -94,6 +93,7 @@ const Politicians = () => {
             <CardContent className="p-4">
               <div className="flex items-center gap-4">
                 <Avatar className="h-14 w-14">
+                  {politician.photo && <AvatarImage src={politician.photo} alt={politician.name} />}
                   <AvatarFallback className="bg-gradient-primary text-primary-foreground font-semibold">
                     {politician.initials}
                   </AvatarFallback>
@@ -113,25 +113,16 @@ const Politicians = () => {
                 </div>
 
                 <div className="flex flex-col items-end gap-1">
-                  <div className="flex gap-2 text-xs">
-                    <span className={getPerformanceColor(politician.performance.ethics)}>
-                      Ética: {politician.performance.ethics}%
-                    </span>
-                  </div>
-                  <div className="flex gap-2 text-xs">
-                    <span className={getPerformanceColor(politician.performance.presence)}>
-                      Presença: {politician.performance.presence}%
-                    </span>
-                  </div>
-                  <ChevronRight className="h-5 w-5 text-muted-foreground mt-1" />
+                  <ChevronRight className="h-5 w-5 text-muted-foreground" />
                 </div>
               </div>
             </CardContent>
           </Card>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
-      {filteredPoliticians.length === 0 && (
+      {!isLoading && !error && filteredPoliticians.length === 0 && (
         <div className="text-center py-12">
           <p className="text-muted-foreground">Nenhum parlamentar encontrado</p>
         </div>
