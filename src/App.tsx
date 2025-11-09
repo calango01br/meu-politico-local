@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -12,28 +13,38 @@ import AILegislation from "./pages/AILegislation";
 import Transparency from "./pages/Transparency";
 import NotFound from "./pages/NotFound";
 
-const queryClient = new QueryClient();
+const App = () => {
+  // Criar queryClient com useState para garantir uma única instância estável
+  const [queryClient] = useState(() => new QueryClient({
+    defaultOptions: {
+      queries: {
+        staleTime: 1000 * 60 * 5, // 5 minutos
+        retry: 1,
+      },
+    },
+  }));
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Layout />}>
-            <Route index element={<Home />} />
-            <Route path="politicians" element={<Politicians />} />
-            <Route path="politicians/:id" element={<PoliticianProfile />} />
-            <Route path="ranking" element={<Ranking />} />
-            <Route path="ai-legislation" element={<AILegislation />} />
-            <Route path="transparency" element={<Transparency />} />
-          </Route>
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Layout />}>
+              <Route index element={<Home />} />
+              <Route path="politicians" element={<Politicians />} />
+              <Route path="politicians/:id" element={<PoliticianProfile />} />
+              <Route path="ranking" element={<Ranking />} />
+              <Route path="ai-legislation" element={<AILegislation />} />
+              <Route path="transparency" element={<Transparency />} />
+            </Route>
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;
