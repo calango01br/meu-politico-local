@@ -14,7 +14,232 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      politician_expenses: {
+        Row: {
+          category: string
+          created_at: string | null
+          date: string
+          description: string | null
+          id: string
+          month: number
+          politician_id: number | null
+          value: number
+          year: number
+        }
+        Insert: {
+          category: string
+          created_at?: string | null
+          date: string
+          description?: string | null
+          id?: string
+          month: number
+          politician_id?: number | null
+          value: number
+          year: number
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          date?: string
+          description?: string | null
+          id?: string
+          month?: number
+          politician_id?: number | null
+          value?: number
+          year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "politician_expenses_politician_id_fkey"
+            columns: ["politician_id"]
+            isOneToOne: false
+            referencedRelation: "politicians"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      politician_votes: {
+        Row: {
+          created_at: string | null
+          date: string
+          id: string
+          politician_id: number | null
+          proposition_id: string
+          proposition_title: string
+          vote: string
+        }
+        Insert: {
+          created_at?: string | null
+          date: string
+          id?: string
+          politician_id?: number | null
+          proposition_id: string
+          proposition_title: string
+          vote: string
+        }
+        Update: {
+          created_at?: string | null
+          date?: string
+          id?: string
+          politician_id?: number | null
+          proposition_id?: string
+          proposition_title?: string
+          vote?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "politician_votes_politician_id_fkey"
+            columns: ["politician_id"]
+            isOneToOne: false
+            referencedRelation: "politicians"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      politicians: {
+        Row: {
+          created_at: string | null
+          email: string | null
+          id: number
+          name: string
+          party: string
+          photo: string | null
+          role: string
+          state: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email?: string | null
+          id: number
+          name: string
+          party: string
+          photo?: string | null
+          role: string
+          state: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string | null
+          id?: number
+          name?: string
+          party?: string
+          photo?: string | null
+          role?: string
+          state?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      propositions: {
+        Row: {
+          author: string | null
+          created_at: string | null
+          date: string
+          id: string
+          number: string
+          status: string
+          summary: string
+          type: string
+          updated_at: string | null
+          year: string
+        }
+        Insert: {
+          author?: string | null
+          created_at?: string | null
+          date: string
+          id: string
+          number: string
+          status: string
+          summary: string
+          type: string
+          updated_at?: string | null
+          year: string
+        }
+        Update: {
+          author?: string | null
+          created_at?: string | null
+          date?: string
+          id?: string
+          number?: string
+          status?: string
+          summary?: string
+          type?: string
+          updated_at?: string | null
+          year?: string
+        }
+        Relationships: []
+      }
+      user_alert_preferences: {
+        Row: {
+          alert_high_expenses: boolean | null
+          alert_important_votes: boolean | null
+          alert_new_laws: boolean | null
+          created_at: string | null
+          expense_threshold: number | null
+          id: string
+          politician_id: number | null
+          state: string | null
+          user_id: string | null
+        }
+        Insert: {
+          alert_high_expenses?: boolean | null
+          alert_important_votes?: boolean | null
+          alert_new_laws?: boolean | null
+          created_at?: string | null
+          expense_threshold?: number | null
+          id?: string
+          politician_id?: number | null
+          state?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          alert_high_expenses?: boolean | null
+          alert_important_votes?: boolean | null
+          alert_new_laws?: boolean | null
+          created_at?: string | null
+          expense_threshold?: number | null
+          id?: string
+          politician_id?: number | null
+          state?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      user_alerts: {
+        Row: {
+          created_at: string | null
+          description: string
+          id: string
+          is_read: boolean | null
+          related_id: string | null
+          title: string
+          type: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description: string
+          id?: string
+          is_read?: boolean | null
+          related_id?: string | null
+          title: string
+          type: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string
+          id?: string
+          is_read?: boolean | null
+          related_id?: string | null
+          title?: string
+          type?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
