@@ -8,83 +8,82 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 0 0% 98%;
-    --foreground: 222 47% 11%;
-
-    --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
-
-    --primary: 217 91% 60%;
-    --primary-foreground: 0 0% 100%;
-
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222 47% 11%;
-
-    --muted: 210 40% 96%;
-    --muted-foreground: 215 16% 47%;
-
-    --accent: 25 95% 53%;
-    --accent-foreground: 0 0% 100%;
-
-    --success: 142 71% 45%;
-    --success-foreground: 0 0% 100%;
-
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 217 91% 60%;
-
-    --radius: 0.75rem;
-
-    --gradient-primary: linear-gradient(135deg, hsl(217 91% 60%), hsl(217 91% 70%));
-    --gradient-accent: linear-gradient(135deg, hsl(25 95% 53%), hsl(35 95% 60%));
-    --gradient-success: linear-gradient(135deg, hsl(142 71% 45%), hsl(142 71% 55%));
-    
-    --shadow-soft: 0 2px 8px -2px hsl(222 47% 11% / 0.1);
-    --shadow-elevated: 0 8px 24px -4px hsl(222 47% 11% / 0.15);
-    
-    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .dark {
-    --background: 222 47% 7%;
+    /* DARK MODE PADRÃO - CIDADÃO CLARO */
+    --background: 222 47% 11%;
     --foreground: 210 40% 98%;
 
-    --card: 222 47% 10%;
+    --card: 224 71% 4%;
     --card-foreground: 210 40% 98%;
 
-    --popover: 222 47% 10%;
+    --popover: 224 71% 4%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 217 91% 60%;
-    --primary-foreground: 0 0% 100%;
+    /* Azul Vibrante - Cor Primária #2C6BED */
+    --primary: 221 82% 55%;
+    --primary-foreground: 210 40% 98%;
+    --primary-glow: 221 82% 65%;
 
     --secondary: 217 33% 17%;
     --secondary-foreground: 210 40% 98%;
 
-    --muted: 217 33% 17%;
+    --muted: 223 47% 11%;
     --muted-foreground: 215 20% 65%;
 
+    /* Laranja Vibrante - Destaque #F97316 */
     --accent: 25 95% 53%;
     --accent-foreground: 0 0% 100%;
 
-    --success: 142 71% 45%;
+    /* Verde Neon - Ação #16A34A */
+    --success: 142 71% 37%;
     --success-foreground: 0 0% 100%;
+
+    /* Roxo - Secundário #7C3AED */
+    --purple: 258 90% 66%;
+    --purple-foreground: 0 0% 100%;
 
     --destructive: 0 63% 31%;
     --destructive-foreground: 210 40% 98%;
 
     --border: 217 33% 17%;
     --input: 217 33% 17%;
-    --ring: 217 91% 60%;
+    --ring: 221 82% 55%;
 
-    --shadow-soft: 0 2px 8px -2px hsl(0 0% 0% / 0.3);
-    --shadow-elevated: 0 8px 24px -4px hsl(0 0% 0% / 0.4);
+    --radius: 0.75rem;
+
+    /* Gradientes */
+    --gradient-primary: linear-gradient(135deg, hsl(221 82% 55%), hsl(221 82% 65%));
+    --gradient-accent: linear-gradient(135deg, hsl(25 95% 53%), hsl(258 90% 66%));
+    --gradient-success: linear-gradient(135deg, hsl(142 71% 37%), hsl(142 71% 47%));
+    
+    /* Sombras com brilho */
+    --shadow-soft: 0 2px 8px -2px hsl(221 82% 55% / 0.1);
+    --shadow-elevated: 0 8px 24px -4px hsl(221 82% 55% / 0.2);
+    --shadow-glow: 0 0 24px hsl(221 82% 55% / 0.3);
+    
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .light {
+    /* Light mode (opcional) */
+    --background: 0 0% 100%;
+    --foreground: 222 84% 5%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 84% 5%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 84% 5%;
+    --primary: 221 82% 55%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222 47% 11%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
+    --accent: 25 95% 53%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 221 82% 55%;
   }
 }
 
