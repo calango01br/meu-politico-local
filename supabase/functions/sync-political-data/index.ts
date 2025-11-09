@@ -25,12 +25,6 @@ serve(async (req) => {
     );
     const deputiesData = await deputiesRes.json();
     
-    // 2. Buscar senadores
-    const senatorsRes = await fetch(
-      'https://legis.senado.leg.br/dadosabertos/senador/lista/atual.json'
-    );
-    const senatorsData = await senatorsRes.json();
-    
     const allPoliticians = [];
     
     // Processar deputados
@@ -46,18 +40,44 @@ serve(async (req) => {
       });
     }
     
-    // Processar senadores
-    const senators = senatorsData.ListaParlamentarEmExercicio.Parlamentares.Parlamentar;
-    for (const senator of senators) {
-      allPoliticians.push({
-        id: parseInt(senator.CodigoParlamentar),
-        name: senator.NomeParlamentar,
-        party: senator.SiglaPartidoParlamentar,
-        state: senator.UfParlamentar,
-        role: 'Senador',
-        photo: senator.UrlFotoParlamentar,
-        email: senator.EmailParlamentar,
-      });
+    // 2. Buscar senadores (com tratamento de timeout)
+    try {
+      const senatorsRes = await fetch(
+        'https://legis.senado.leg.br/dadosabertos/senador/lista/atual.json',
+        { signal: AbortSignal.timeout(30000) } // 30 segundos timeout
+      );
+      
+      if (senatorsRes.ok) {
+        const senatorsData = await senatorsRes.json();
+        const senators = senatorsData.ListaParlamentarEmExercicio.Parlamentares.Parlamentar;
+        
+        // Processar senadores com validação de ID
+        for (const senator of senators) {
+          const senatorId = parseInt(senator.CodigoParlamentar);
+          
+          // Validar se o ID é válido antes de adicionar
+          if (!isNaN(senatorId) && senatorId > 0) {
+            allPoliticians.push({
+              id: senatorId,
+              name: senator.NomeParlamentar || 'Nome não disponível',
+              party: senator.SiglaPartidoParlamentar || 'SEM PARTIDO',
+              state: senator.UfParlamentar || 'BR',
+              role: 'Senador',
+              photo: senator.UrlFotoParlamentar || null,
+              email: senator.EmailParlamentar || null,
+            });
+          } else {
+            console.warn(`⚠️ Senador com ID inválido ignorado: ${senator.NomeParlamentar}`);
+          }
+        }
+        console.log(`✅ ${senators.length} senadores processados`);
+      } else {
+        console.warn(`⚠️ API do Senado retornou status ${senatorsRes.status}, continuando apenas com deputados`);
+      }
+    } catch (senatorError) {
+      const errorMessage = senatorError instanceof Error ? senatorError.message : 'Erro desconhecido';
+      console.error('⚠️ Erro ao buscar senadores (continuando apenas com deputados):', errorMessage);
+      // Continua sem os senadores em vez de falhar toda a sincronização
     }
 
     console.log(`📊 Total de políticos: ${allPoliticians.length}`);
