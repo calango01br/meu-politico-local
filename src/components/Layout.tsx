@@ -1,5 +1,7 @@
 import { Home, Users, TrendingUp, Sparkles, DollarSign } from "lucide-react";
 import { NavLink, Outlet } from "react-router-dom";
+import { AlertsDropdown } from "./AlertsDropdown";
+import { SyncDataButton } from "./SyncDataButton";
 
 const Layout = () => {
   const navItems = [
@@ -12,7 +14,18 @@ const Layout = () => {
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
-      <main className="flex-1 pb-20 overflow-auto">
+      {/* Header com sino de alertas */}
+      <header className="fixed top-0 left-0 right-0 bg-card/95 backdrop-blur-sm border-b border-border z-50 h-14">
+        <div className="max-w-screen-xl mx-auto px-4 h-full flex items-center justify-between gap-3">
+          <h1 className="text-lg font-bold text-primary">Cidadão Claro</h1>
+          <div className="flex items-center gap-2">
+            <SyncDataButton />
+            <AlertsDropdown />
+          </div>
+        </div>
+      </header>
+      
+      <main className="flex-1 pt-14 pb-20 overflow-auto">
         <Outlet />
       </main>
       
