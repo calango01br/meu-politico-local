@@ -8,30 +8,38 @@ import { fetchExpensesByCategory, fetchTopSpenders, fetchExpensesByParty } from 
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useAutoSync } from "@/hooks/useAutoSync";
+import { PeriodFilter } from "@/components/PeriodFilter";
 
 const Transparency = () => {
   const [viewMode, setViewMode] = useState<"category" | "politician">("category");
+  const [selectedMonth, setSelectedMonth] = useState<string>("all");
+  const [selectedYear, setSelectedYear] = useState<string>("all");
 
   const { isSyncing } = useAutoSync();
 
+  const periodFilter = {
+    month: selectedMonth !== "all" ? parseInt(selectedMonth) : undefined,
+    year: selectedYear !== "all" ? parseInt(selectedYear) : undefined,
+  };
+
   // Buscar gastos por categoria
   const { data: categoryData = [], isLoading: loadingCategory } = useQuery({
-    queryKey: ["expenses-by-category"],
-    queryFn: fetchExpensesByCategory,
+    queryKey: ["expenses-by-category", selectedMonth, selectedYear],
+    queryFn: () => fetchExpensesByCategory(periodFilter),
     staleTime: 1000 * 60 * 5,
   });
 
   // Buscar top gastadores
   const { data: topSpenders = [], isLoading: loadingSpenders } = useQuery({
-    queryKey: ["top-spenders"],
-    queryFn: () => fetchTopSpenders(10),
+    queryKey: ["top-spenders", selectedMonth, selectedYear],
+    queryFn: () => fetchTopSpenders(10, periodFilter),
     staleTime: 1000 * 60 * 5,
   });
 
   // Buscar gastos por partido
   const { data: partyData = [], isLoading: loadingParty } = useQuery({
-    queryKey: ["expenses-by-party"],
-    queryFn: fetchExpensesByParty,
+    queryKey: ["expenses-by-party", selectedMonth, selectedYear],
+    queryFn: () => fetchExpensesByParty(periodFilter),
     staleTime: 1000 * 60 * 5,
   });
 
@@ -62,6 +70,14 @@ const Transparency = () => {
           Acompanhe como o dinheiro público é gasto
         </p>
       </header>
+
+      {/* Period Filter */}
+      <PeriodFilter
+        selectedMonth={selectedMonth}
+        selectedYear={selectedYear}
+        onMonthChange={setSelectedMonth}
+        onYearChange={setSelectedYear}
+      />
 
       {/* Total Spending Card */}
       <Card className="mb-6 bg-gradient-primary text-primary-foreground border-0 shadow-elevated">
