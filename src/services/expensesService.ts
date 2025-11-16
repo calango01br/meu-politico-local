@@ -24,11 +24,25 @@ export interface ExpensesByParty {
   percentage: number;
 }
 
+export interface PeriodFilter {
+  month?: number;
+  year?: number;
+}
+
 // Buscar gastos agrupados por categoria
-export const fetchExpensesByCategory = async (): Promise<ExpensesByCategory[]> => {
-  const { data: expenses, error } = await supabase
+export const fetchExpensesByCategory = async (periodFilter?: PeriodFilter): Promise<ExpensesByCategory[]> => {
+  let query = supabase
     .from('politician_expenses')
-    .select('category, value');
+    .select('category, value, month, year');
+
+  if (periodFilter?.month) {
+    query = query.eq('month', periodFilter.month);
+  }
+  if (periodFilter?.year) {
+    query = query.eq('year', periodFilter.year);
+  }
+
+  const { data: expenses, error } = await query;
 
   if (error) throw error;
 
@@ -59,10 +73,19 @@ export const fetchExpensesByCategory = async (): Promise<ExpensesByCategory[]> =
 };
 
 // Buscar top políticos por gasto
-export const fetchTopSpenders = async (limit: number = 10): Promise<TopSpender[]> => {
-  const { data: expenses, error: expensesError } = await supabase
+export const fetchTopSpenders = async (limit: number = 10, periodFilter?: PeriodFilter): Promise<TopSpender[]> => {
+  let query = supabase
     .from('politician_expenses')
-    .select('politician_id, value');
+    .select('politician_id, value, month, year');
+
+  if (periodFilter?.month) {
+    query = query.eq('month', periodFilter.month);
+  }
+  if (periodFilter?.year) {
+    query = query.eq('year', periodFilter.year);
+  }
+
+  const { data: expenses, error: expensesError } = await query;
 
   if (expensesError) throw expensesError;
 
@@ -115,10 +138,19 @@ export const fetchTopSpenders = async (limit: number = 10): Promise<TopSpender[]
 };
 
 // Buscar gastos por partido
-export const fetchExpensesByParty = async (): Promise<ExpensesByParty[]> => {
-  const { data: expenses, error: expensesError } = await supabase
+export const fetchExpensesByParty = async (periodFilter?: PeriodFilter): Promise<ExpensesByParty[]> => {
+  let query = supabase
     .from('politician_expenses')
-    .select('politician_id, value');
+    .select('politician_id, value, month, year');
+
+  if (periodFilter?.month) {
+    query = query.eq('month', periodFilter.month);
+  }
+  if (periodFilter?.year) {
+    query = query.eq('year', periodFilter.year);
+  }
+
+  const { data: expenses, error: expensesError } = await query;
 
   if (expensesError) throw expensesError;
 

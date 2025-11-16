@@ -10,6 +10,7 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchPoliticiansFromDB } from "@/services/politicalDataService";
 import { supabase } from "@/integrations/supabase/client";
 import { useAutoSync } from "@/hooks/useAutoSync";
+import { PeriodFilter } from "@/components/PeriodFilter";
 
 interface PoliticianWithScore {
   id: number;
@@ -25,6 +26,8 @@ interface PoliticianWithScore {
 
 const Ranking = () => {
   const [filter, setFilter] = useState<string>("Nacional");
+  const [selectedMonth, setSelectedMonth] = useState<string>("all");
+  const [selectedYear, setSelectedYear] = useState<string>("all");
   const filters = ["Nacional", "SP", "RJ", "MG", "RS", "BA"];
 
   const { isSyncing } = useAutoSync();
@@ -38,15 +41,29 @@ const Ranking = () => {
 
   // Buscar estatísticas (votos e gastos) para calcular scores
   const { data: stats, isLoading: loadingStats } = useQuery({
-    queryKey: ["politicians-stats"],
+    queryKey: ["politicians-stats", selectedMonth, selectedYear],
     queryFn: async () => {
+      let votesQuery = supabase
+        .from('politician_votes')
+        .select('politician_id, date');
+      
+      let expensesQuery = supabase
+        .from('politician_expenses')
+        .select('politician_id, value, month, year');
+
+      // Aplicar filtros de período
+      if (selectedMonth !== "all") {
+        expensesQuery = expensesQuery.eq('month', parseInt(selectedMonth));
+      }
+      if (selectedYear !== "all") {
+        expensesQuery = expensesQuery.eq('year', parseInt(selectedYear));
+        // Filtrar votos por ano também
+        votesQuery = votesQuery.gte('date', `${selectedYear}-01-01`).lte('date', `${selectedYear}-12-31`);
+      }
+
       const [votesResult, expensesResult] = await Promise.all([
-        supabase
-          .from('politician_votes')
-          .select('politician_id'),
-        supabase
-          .from('politician_expenses')
-          .select('politician_id, value'),
+        votesQuery,
+        expensesQuery,
       ]);
 
       // Contar votos por político
@@ -144,6 +161,14 @@ const Ranking = () => {
           ))}
         </div>
       </header>
+
+      {/* Period Filter */}
+      <PeriodFilter
+        selectedMonth={selectedMonth}
+        selectedYear={selectedYear}
+        onMonthChange={setSelectedMonth}
+        onYearChange={setSelectedYear}
+      />
 
       {/* Info Card */}
       <Card className="mb-6 bg-gradient-accent text-accent-foreground border-0 shadow-elevated">
