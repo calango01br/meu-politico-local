@@ -58,6 +58,44 @@ export type Database = {
           },
         ]
       }
+      politician_scores: {
+        Row: {
+          calculated_at: string
+          gastos: number
+          outros: number
+          politician_id: number
+          processos: number
+          score_total: number
+          votacoes: number
+        }
+        Insert: {
+          calculated_at?: string
+          gastos?: number
+          outros?: number
+          politician_id: number
+          processos?: number
+          score_total: number
+          votacoes?: number
+        }
+        Update: {
+          calculated_at?: string
+          gastos?: number
+          outros?: number
+          politician_id?: number
+          processos?: number
+          score_total?: number
+          votacoes?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "politician_scores_politician_id_fkey"
+            columns: ["politician_id"]
+            isOneToOne: true
+            referencedRelation: "politicians"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       politician_votes: {
         Row: {
           created_at: string | null

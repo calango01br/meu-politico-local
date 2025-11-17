@@ -1,1 +1,10 @@
 project_id = "imczhmdmmyqnzbuoywvk"
+
+[functions.sync-political-data]
+verify_jwt = false
+
+[functions.calculate-ranking-score]
+verify_jwt = false
+
+[functions.simplify-legislation]
+verify_jwt = false
